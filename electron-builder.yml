@@ -1,0 +1,62 @@
+appId: com.sealed.app
+productName: Sealed
+copyright: Copyright © 2024 Sealed
+
+directories:
+  buildResources: resources
+  output: dist
+
+files:
+  - out/**/*
+
+afterSign: null
+
+mac:
+  icon: resources/icon.png
+  entitlementsInherit: build/entitlements.mac.plist
+  extendInfo:
+    - NSCameraUsageDescription: Application requests access to the device's camera.
+    - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
+    - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
+    - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
+  notarize: false
+  target:
+    - target: dmg
+      arch:
+        - x64
+        - arm64
+    - target: zip
+      arch:
+        - x64
+        - arm64
+
+win:
+  icon: resources/icon.png
+  executableName: Sealed
+  target:
+    - target: nsis
+      arch:
+        - x64
+
+nsis:
+  artifactName: ${name}-${version}-setup.${ext}
+  shortcutName: ${productName}
+  uninstallDisplayName: ${productName}
+  createDesktopShortcut: always
+
+linux:
+  icon: resources/icon.png
+  target:
+    - AppImage
+    - snap
+  maintainer: electronjs.org
+  category: Utility
+
+appImage:
+  artifactName: ${name}-${version}.${ext}
+
+npmRebuild: false
+
+publish:
+  provider: generic
+  url: https://example.com/auto-updates
