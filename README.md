@@ -11,8 +11,9 @@
 
 <p align="center">
   <a href="https://github.com/Myrafy/sealed/releases/latest"><img alt="Release" src="https://img.shields.io/github/v/release/Myrafy/sealed?style=flat-square&color=3b82f6" /></a>
+  <a href="https://github.com/Myrafy/sealed/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/Myrafy/sealed/actions/workflows/ci.yml/badge.svg?branch=main" /></a>
+  <a href="https://github.com/Myrafy/sealed/actions/workflows/ci.yml"><img alt="Coverage" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Myrafy/sealed/main/badges/coverage.json" /></a>
   <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/Myrafy/sealed?style=flat-square&color=8b5cf6" /></a>
-  <a href="https://github.com/Myrafy/sealed/actions/workflows/release.yml"><img alt="Release workflow" src="https://img.shields.io/github/actions/workflow/status/Myrafy/sealed/release.yml?style=flat-square&label=release" /></a>
   <img alt="Platforms" src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-111827?style=flat-square" />
 </p>
 
@@ -143,8 +144,9 @@ Stack: Electron · electron-vite · React · TypeScript · Zustand · Vitest
 git clone https://github.com/Myrafy/sealed.git
 cd sealed
 npm install
-npm run dev       # development app
-npm test          # unit tests
+npm run dev            # development app
+npm test               # unit tests
+npm run test:coverage  # unit tests + 100% coverage gate
 npm run typecheck
 ```
 
@@ -154,6 +156,8 @@ npm run typecheck
 | `npm run build:win` | Windows installer |
 | `npm run build:linux` | Linux AppImage / deb |
 | `npm run electron:install` | Repair Electron binary download |
+
+Pull requests to **`develop`** and **`main`** run CI (`typecheck` + **100% coverage**). Below 100%, the workflow fails and the PR cannot merge (require the **Typecheck & coverage** check in branch protection). The README coverage badge is driven by [`badges/coverage.json`](badges/coverage.json) — refresh it with `npm run test:coverage` if it drifts.
 
 Common issues (Gatekeeper, Electron install, `ELECTRON_RUN_AS_NODE`) are covered in [docs/troubleshooting.md](docs/troubleshooting.md).
 

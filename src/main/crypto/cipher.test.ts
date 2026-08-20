@@ -36,6 +36,19 @@ describe('encrypt / decrypt', () => {
     expect(() => decrypt(key, tampered)).toThrow()
   })
 
+  it('throws on tampered auth tag or iv', () => {
+    const key = makeKey()
+    const blob = encrypt(key, 'secret')
+    expect(() => decrypt(key, { ...blob, authTag: blob.authTag.replace(/.$/, '0') })).toThrow()
+    expect(() => decrypt(key, { ...blob, iv: blob.iv.replace(/.$/, '0') })).toThrow()
+  })
+
+  it('round-trips empty and unicode plaintext', () => {
+    const key = makeKey()
+    expect(decrypt(key, encrypt(key, ''))).toBe('')
+    expect(decrypt(key, encrypt(key, '🔐 café\nline'))).toBe('🔐 café\nline')
+  })
+
   it('round-trips VERIFIER_PLAINTEXT', () => {
     const key = makeKey()
     const blob = encrypt(key, VERIFIER_PLAINTEXT)
@@ -43,10 +56,15 @@ describe('encrypt / decrypt', () => {
   })
 })
 
-describe('deriveKey', () => {
+describe('deriveKey / generateSalt', () => {
   it('produces 32-byte key', () => {
     const key = deriveKey('password', generateSalt())
     expect(key.length).toBe(32)
+  })
+
+  it('generateSalt returns 64 hex characters', () => {
+    const salt = generateSalt()
+    expect(salt).toMatch(/^[0-9a-f]{64}$/)
   })
 
   it('same password + same salt → same key', () => {

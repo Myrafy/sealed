@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { mkdtempSync, rmSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import { FileStorageProvider } from './fileProvider'
-import type { App, Secret, VaultMeta } from '@shared/types'
+import type { App, ProjectLink, Secret, VaultMeta } from '@shared/types'
 
 function makeTmpDir(): string {
   return mkdtempSync(join(tmpdir(), 'sealed-test-'))
@@ -25,6 +25,10 @@ describe('FileStorageProvider', () => {
   beforeEach(() => {
     dir = makeTmpDir()
     provider = new FileStorageProvider(dir)
+  })
+
+  afterEach(() => {
+    rmSync(dir, { recursive: true, force: true })
   })
 
   it('returns null vault meta for empty vault', async () => {
@@ -113,7 +117,65 @@ describe('FileStorageProvider', () => {
     expect(await again.getVaultMeta()).toBeNull()
   })
 
-  it('cleanup', () => {
-    rmSync(dir, { recursive: true, force: true })
+  it('returns null for missing app/secret and supports secret get/update/delete', async () => {
+    expect(await provider.getApp('missing')).toBeNull()
+    expect(await provider.getSecret('missing')).toBeNull()
+
+    const app: App = { id: 'app1', name: 'Test', createdAt: new Date().toISOString(), linkedProjects: [] }
+    await provider.saveApp(app)
+    const secret: Secret = {
+      id: 's1',
+      appId: 'app1',
+      key: 'KEY',
+      value: { iv: 'iv', authTag: 'at', data: 'd' },
+      updatedAt: new Date().toISOString()
+    }
+    await provider.saveSecret(secret)
+    expect(await provider.getSecret('s1')).toEqual(secret)
+
+    await provider.saveSecret({ ...secret, key: 'UPDATED' })
+    expect((await provider.getSecret('s1'))?.key).toBe('UPDATED')
+
+    await provider.deleteSecret('s1')
+    expect(await provider.getSecret('s1')).toBeNull()
+  })
+
+  it('manages project links and creates nested vault directories', async () => {
+    const nestedDir = join(dir, 'nested', 'user-data')
+    const nested = new FileStorageProvider(nestedDir)
+    await nested.saveVaultMeta(makeVaultMeta())
+    expect(await nested.getVaultMeta()).not.toBeNull()
+
+    const app: App = { id: 'app1', name: 'Test', createdAt: new Date().toISOString(), linkedProjects: [] }
+    await provider.saveApp(app)
+
+    const link: ProjectLink = {
+      id: 'l1',
+      appId: 'app1',
+      folderPath: '/tmp/project',
+      format: 'dotenv',
+      autoSync: true,
+      lastSyncAt: null
+    }
+    await provider.saveProjectLink(link)
+    expect(await provider.getProjectLink('l1')).toEqual(link)
+    expect((await provider.getApp('app1'))?.linkedProjects).toHaveLength(1)
+
+    const updated = { ...link, folderPath: '/tmp/other' }
+    await provider.saveProjectLink(updated)
+    expect(await provider.getProjectLink('l1')).toEqual(updated)
+
+    await expect(provider.saveProjectLink({ ...link, appId: 'missing' })).rejects.toThrow(
+      /App missing not found/
+    )
+
+    await provider.deleteProjectLink('missing')
+    expect(await provider.getProjectLink('l1')).not.toBeNull()
+
+    await provider.deleteProjectLink('l1')
+    expect(await provider.getProjectLink('l1')).toBeNull()
+    expect(await provider.getProjectLink('gone')).toBeNull()
+
+    await provider.close()
   })
 })

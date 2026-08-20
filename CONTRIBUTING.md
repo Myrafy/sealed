@@ -27,9 +27,25 @@ git checkout -b feature/short-description
 
 3. Make your changes, commit, and push.
 4. Open a **pull request against `develop`** (not `main`).
-5. A maintainer reviews and merges. Direct pushes to `develop` and `main` are blocked.
+5. CI must pass (`typecheck` + unit tests with **100% coverage** on crypto / storage / sync).
+6. A maintainer reviews and merges. Direct pushes to `develop` and `main` are blocked.
 
 Do **not** bump the package version or create release tags unless a maintainer asks you to.
+
+### Coverage gate
+
+```bash
+npm run test:coverage
+```
+
+The gate enforces 100% statements / branches / functions / lines for:
+
+- `src/main/crypto/**`
+- `src/main/sync/**`
+- `src/main/storage/{simpleStore,fileProvider,mongoProvider}.ts`
+- `src/main/windowLayout.ts`
+
+Electron shell (`index.ts`, `ipc.ts`, preload) and React UI are outside this unit gate; keep PRs small and exercise those paths manually until UI/E2E coverage is added.
 
 ## For maintainers (release)
 
@@ -81,7 +97,6 @@ Configure once in **Settings → Rules → Rulesets** (or **Branches**):
 ### Suggested extras
 
 - **Settings → General → Pull Requests**: set default base branch to **`develop`** so new PRs aim there.
-- Disable “Allow merge commits from forks without review” style shortcuts if present.
-- Optionally require status checks once you add a CI workflow on PRs.
+- Require status checks: **`Typecheck & coverage`** (workflow **CI**) before merging to `develop` / `main`.
 
 Direct pushes and force-pushes to `main` / `develop` should fail for everyone else; only your merges via PR should land.
