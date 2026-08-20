@@ -12,10 +12,10 @@ function getStrength(password: string): { score: number; label: string; color: s
   if (/[A-Z]/.test(password)) score++
   if (/[0-9]/.test(password)) score++
   if (/[^A-Za-z0-9]/.test(password)) score++
-  if (score <= 2) return { score, label: 'Weak', color: '#e25555' }
-  if (score <= 3) return { score, label: 'Fair', color: '#e2a055' }
-  if (score === 4) return { score, label: 'Good', color: '#4caf82' }
-  return { score, label: 'Strong', color: '#4caf82' }
+  if (score <= 2) return { score, label: 'Weak', color: 'var(--danger)' }
+  if (score <= 3) return { score, label: 'Fair', color: 'var(--warning)' }
+  if (score === 4) return { score, label: 'Good', color: 'var(--success)' }
+  return { score, label: 'Strong', color: 'var(--success)' }
 }
 
 export function PasswordInput({ showStrength, ...props }: Props): React.ReactElement {
