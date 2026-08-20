@@ -23,7 +23,7 @@ Download the latest installer from **[GitHub Releases](https://github.com/Myrafy
 | Windows | `Sealed-*-win-x64.exe` |
 | Linux | `Sealed-*-linux-x64.AppImage` or `.deb` |
 
-**macOS note:** builds are currently unsigned. After download, right-click the app → **Open** the first time (Gatekeeper).
+**macOS note:** releases are notarized when Apple signing secrets are configured (see [docs/macos-signing.md](docs/macos-signing.md)). Until then, builds are unsigned — right-click the app → **Open** the first time.
 
 ### Publish a release (maintainers)
 
