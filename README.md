@@ -1,181 +1,183 @@
-# Sealed
+<p align="center">
+  <img src="resources/icon.png" alt="Sealed logo" width="96" height="96" />
+</p>
 
-A local encrypted secrets manager for developers. Store secrets once, inject them into any project without touching your code.
+<h1 align="center">Sealed</h1>
+
+<p align="center">
+  <strong>Local-first encrypted secrets manager for developers</strong><br />
+  Store secrets once. Inject them into any project — without committing them to git.
+</p>
+
+<p align="center">
+  <a href="https://github.com/Myrafy/sealed/releases/latest"><img alt="Release" src="https://img.shields.io/github/v/release/Myrafy/sealed?style=flat-square&color=3b82f6" /></a>
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/Myrafy/sealed?style=flat-square&color=8b5cf6" /></a>
+  <a href="https://github.com/Myrafy/sealed/actions/workflows/release.yml"><img alt="Release workflow" src="https://img.shields.io/github/actions/workflow/status/Myrafy/sealed/release.yml?style=flat-square&label=release" /></a>
+  <img alt="Platforms" src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-111827?style=flat-square" />
+</p>
+
+<p align="center">
+  <a href="https://myrafy.com">Website</a> ·
+  <a href="https://github.com/Myrafy/sealed/releases/latest">Download</a> ·
+  <a href="#security">Security</a> ·
+  <a href="CONTRIBUTING.md">Contributing</a> ·
+  <a href="https://github.com/Myrafy/sealed/issues">Issues</a>
+</p>
+
+---
+
+## Why Sealed
+
+Most teams end up with secrets scattered across Slack, `.env` files, and personal notes. Sealed keeps them in an **encrypted vault on your machine**, grouped by app, and writes the right env file into each project folder — git-ignored automatically.
+
+- **Local-first** — master password and encryption keys never leave your device
+- **Zero code changes** — inject `.env` or .NET `launchSettings.json`
+- **Optional sync** — store ciphertext in MongoDB when you need multiple machines
 
 ## Features
 
-- **Encrypted vault** — AES-256-GCM encryption with scrypt key derivation. Your master password never leaves your machine.
-- **Per-app secrets** — Group secrets by project. Each app has its own isolated vault.
-- **Auto-inject** — Link project folders and Sealed writes a git-ignored `.env` or `launchSettings.json` automatically.
-- **Two storage backends** — Local encrypted file (default) or MongoDB (ciphertext only).
-- **Cross-platform** — Windows (NSIS), macOS (DMG), and Linux (AppImage / deb).
+| Capability | Description |
+|------------|-------------|
+| **Encrypted vault** | AES-256-GCM with scrypt key derivation |
+| **Per-app isolation** | Group secrets by project; each app has its own vault |
+| **Auto-inject** | Link a folder; Sealed writes and syncs env files |
+| **Storage backends** | Local encrypted file (default) or MongoDB (ciphertext only) |
+| **Cross-platform** | macOS (DMG), Windows (NSIS), Linux (AppImage / deb) |
 
-## Getting Started
+## Quick start
 
-### Install
+### 1. Install
 
-Download the latest installer from **[GitHub Releases](https://github.com/Myrafy/sealed/releases/latest)**:
+Download the latest build from **[GitHub Releases](https://github.com/Myrafy/sealed/releases/latest)**:
 
-| Platform | File |
-|----------|------|
-| macOS (Apple Silicon) | `Sealed-*-mac-arm64.dmg` |
-| macOS (Intel) | `Sealed-*-mac-x64.dmg` |
+| Platform | Artifact |
+|----------|----------|
+| macOS Apple Silicon | `Sealed-*-mac-arm64.dmg` |
+| macOS Intel | `Sealed-*-mac-x64.dmg` |
 | Windows | `Sealed-*-win-x64.exe` |
 | Linux | `Sealed-*-linux-x64.AppImage` or `.deb` |
 
-**macOS note:** releases are notarized when Apple signing secrets are configured (see [docs/macos-signing.md](docs/macos-signing.md)). Until then, builds are unsigned — right-click the app → **Open** the first time.
+> **macOS:** Builds are notarized when Apple signing is configured ([docs](docs/macos-signing.md)). Until then, right-click the app → **Open** on first launch.
 
-### Contribute
+### 2. First run
 
-Open pull requests against **`develop`**, not `main`. See [CONTRIBUTING.md](CONTRIBUTING.md) for the branch model and review flow.
+1. Create a strong **master password** — there is no recovery if it is lost.
+2. Optionally add a MongoDB URI for cross-machine sync, or skip for local-only storage.
+3. Create an **App**, then add your secrets.
 
-### Publish a release (maintainers)
+### 3. Link a project
 
-1. Merge **`develop` → `main`** when the next version is ready.
-2. On `main`, bump `"version"` in `package.json` if needed, then tag and push:
-
-```bash
-git tag v1.0.2
-git push origin v1.0.2
-```
-
-3. GitHub Actions builds macOS / Windows / Linux packages and uploads them to the release for that tag.
-
-You can also run **Actions → Release → Run workflow** manually. Protect `main` and `develop` so only you can merge (settings steps in [CONTRIBUTING.md](CONTRIBUTING.md)).
-
-### First run
-
-1. Choose a strong master password (this encrypts everything — there is no recovery if lost).
-2. Optionally provide a MongoDB connection URI for cross-machine sync. Skip to store locally.
-3. Create your first App and add secrets.
-
-### Adding secrets to a project
-
-1. Open an App and click **Link project**.
+1. Open an App → **Link project**.
 2. Choose the injection format:
-   - `.env` — for Node.js (Next.js, Express, etc.)
-   - `launchSettings.json` — for .NET Core
-3. Pick the project folder. Sealed writes the file immediately and keeps it in sync.
+   - **`.env`** — Node.js, Next.js, Express, and most runtimes
+   - **`launchSettings.json`** — .NET Core (`dotnet run` / Visual Studio)
+3. Select the project folder. Sealed writes the file and keeps it in sync, and adds it to `.gitignore` when needed.
 
-## Usage in your projects
+## Using secrets in your projects
 
-### Next.js
+### Node.js / Next.js
 
-Nothing needed. Add this to `.env.local` or just use `.env`. Next.js auto-loads it at startup.
+Next.js loads `.env` automatically. Elsewhere, use `process.env` (or `dotenv` if you prefer):
 
 ```js
-// Access secrets via process.env
 const url = process.env.DATABASE_URL
 ```
 
-### Express / Node.js
-
 ```js
-// If using a package like dotenv, call it at the top of your entry file.
-// Or just use process.env directly — Sealed writes the .env file, Node picks it up.
-require('dotenv').config()  // optional, for non-Next projects
+require('dotenv').config() // optional for non-Next apps
 const port = process.env.PORT
 ```
 
-### .NET Core — Option A: DotNetEnv
+### .NET
 
-```sh
+**Option A — DotNetEnv**
+
+```bash
 dotnet add package DotNetEnv
 ```
 
 ```csharp
-// Program.cs (top of file)
 DotNetEnv.Env.Load();
-
-// Then use anywhere
 var connStr = Environment.GetEnvironmentVariable("DATABASE_URL");
 ```
 
-### .NET Core — Option B: launchSettings.json
+**Option B — launchSettings.json**
 
-Choose **launchSettings.json** format when linking the project. Sealed merges secrets into `Properties/launchSettings.json`. Visual Studio and `dotnet run` inject these automatically — no code changes needed.
+Link the project with the **launchSettings.json** format. Sealed merges secrets into `Properties/launchSettings.json` so Visual Studio and `dotnet run` pick them up with no code changes.
 
-## Building from source
+## Security
 
-```sh
-npm install
-npm run dev         # Development mode
-npm run test        # Run unit tests
-npm run build:mac   # macOS DMG
-npm run build:win   # Windows NSIS installer
-```
+Sealed is designed so plaintext secrets stay off the network and out of the UI by default.
 
-### Troubleshooting: "Electron uninstall" error
+| Control | Behavior |
+|---------|----------|
+| Key material | Master key lives only in the Electron **main process** memory |
+| Renderer isolation | Secret values reach the UI only on explicit **Reveal** or **Copy** |
+| At rest | AES-256-GCM; unique random IV per secret value |
+| Password check | Verifier-based unlock — wrong password fails closed |
+| MongoDB backend | Stores **ciphertext + IV + auth tag** only; URI via Electron `safeStorage` |
+| Project files | Linked `.env` / `launchSettings.json` are added to `.gitignore` |
 
-If `npm run dev` fails with `Error: Electron uninstall`, the Electron binary did not download during install. Run:
-
-```sh
-npm run electron:install
-```
-
-If that still fails, remove and reinstall:
-
-```sh
-rm -rf node_modules/electron
-npm install
-```
-
-### Troubleshooting: macOS blocks the app (Gatekeeper)
-
-macOS may show **"Apple could not verify … is free of malware"** when running unsigned Electron apps in dev mode. The project handles this automatically — `npm run dev` runs a script that removes the quarantine flag and ad-hoc signs the Electron binary.
-
-If you still see the block dialog:
-
-1. Run the fix manually:
-   ```sh
-   npm run electron:install
-   ```
-2. Open **System Settings → Privacy & Security** and click **Open Anyway** next to the blocked app message.
-3. Alternatively, right-click the app in Finder and choose **Open** (bypasses Gatekeeper once).
-
-If the app window never opens and the terminal shows `Cannot read properties of undefined (reading 'whenReady')`, your shell may have `ELECTRON_RUN_AS_NODE=1` set (common in some IDE terminals). The dev script clears this automatically, but you can also run:
-
-```sh
-unset ELECTRON_RUN_AS_NODE
-npm run dev
-```
-
-For production builds, sign with a Developer ID certificate and notarize via `electron-builder` (see [Electron docs](https://www.electronjs.org/docs/latest/tutorial/code-signing)).
+**Responsible disclosure:** report vulnerabilities privately to [hello@myrafy.com](mailto:hello@myrafy.com). Do not open a public issue for undisclosed security problems.
 
 ## Architecture
 
 ```
 src/
-  main/
-    crypto/         # kdf.ts (scrypt), cipher.ts (AES-256-GCM)
-    storage/        # provider.ts (interface), fileProvider.ts, mongoProvider.ts
-    sync/           # envWriter.ts, launchSettingsWriter.ts, gitignore.ts
-    index.ts        # Electron main process
-    ipc.ts          # All IPC handlers
-  preload/
-    index.ts        # contextBridge API (window.api)
-  renderer/
-    src/
-      pages/        # Setup, Unlock, AppDetail, Settings
-      store/        # Zustand store
-      components/   # Toast, Modal, PasswordInput
-shared/
-  types.ts          # All IPC contracts and data models
+  main/           # Electron main: crypto, storage, sync, IPC
+    crypto/       # scrypt KDF, AES-256-GCM
+    storage/      # file + Mongo providers
+    sync/         # .env / launchSettings writers, gitignore helpers
+  preload/        # contextBridge (window.api)
+  renderer/       # React UI
+shared/           # IPC contracts and shared types
 ```
 
-## Security
+Stack: Electron · electron-vite · React · TypeScript · Zustand · Vitest
 
-- Master key is held only in main-process memory; never exposed to the renderer.
-- The renderer never receives secret values unless the user explicitly clicks "Reveal" or "Copy".
-- MongoDB stores only ciphertext + IV + auth tag. The connection string is stored via Electron `safeStorage`.
-- Each secret value uses a random IV — no IV reuse.
-- Wrong master password is detected via a verifier check, not garbage output.
-- `.env` and `launchSettings.json` are automatically added to `.gitignore` when a project is linked.
+## Development
 
-## Future roadmap
+**Requirements:** Node.js 20+ (recommended), npm
 
-- Local agent + language SDKs for zero-file injection
-- Multiple environments (dev / staging / prod) per App
-- Team secret sharing
-- CLI (`sealed sync`, `sealed add`)
-- More language support (Python, Go, Ruby)
+```bash
+git clone https://github.com/Myrafy/sealed.git
+cd sealed
+npm install
+npm run dev       # development app
+npm test          # unit tests
+npm run typecheck
+```
+
+| Script | Purpose |
+|--------|---------|
+| `npm run build:mac` | macOS DMG |
+| `npm run build:win` | Windows installer |
+| `npm run build:linux` | Linux AppImage / deb |
+| `npm run electron:install` | Repair Electron binary download |
+
+Common issues (Gatekeeper, Electron install, `ELECTRON_RUN_AS_NODE`) are covered in [docs/troubleshooting.md](docs/troubleshooting.md).
+
+## Contributing
+
+We welcome issues and pull requests.
+
+1. Read [CONTRIBUTING.md](CONTRIBUTING.md) — PRs target **`develop`**, not `main`.
+2. Branch from the latest `develop`, open a PR, and wait for maintainer review.
+3. Releases are cut by maintainers: `develop` → `main` → version tag (`v*`) → GitHub Actions publishes installers.
+
+## Roadmap
+
+- [ ] Local agent + language SDKs for zero-file injection
+- [ ] Multiple environments (dev / staging / prod) per App
+- [ ] Team secret sharing
+- [ ] CLI (`sealed sync`, `sealed add`)
+- [ ] Broader language support (Python, Go, Ruby)
+
+## Support
+
+- **Bugs & features:** [GitHub Issues](https://github.com/Myrafy/sealed/issues)
+- **Product / company:** [myrafy.com](https://myrafy.com) · [hello@myrafy.com](mailto:hello@myrafy.com)
+
+## License
+
+[MIT](LICENSE) © [Myrafy](https://myrafy.com)
