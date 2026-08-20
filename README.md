@@ -25,19 +25,23 @@ Download the latest installer from **[GitHub Releases](https://github.com/Myrafy
 
 **macOS note:** releases are notarized when Apple signing secrets are configured (see [docs/macos-signing.md](docs/macos-signing.md)). Until then, builds are unsigned — right-click the app → **Open** the first time.
 
+### Contribute
+
+Open pull requests against **`develop`**, not `main`. See [CONTRIBUTING.md](CONTRIBUTING.md) for the branch model and review flow.
+
 ### Publish a release (maintainers)
 
-1. Bump `"version"` in `package.json` (e.g. `1.0.1`).
-2. Commit, then tag and push:
+1. Merge **`develop` → `main`** when the next version is ready.
+2. On `main`, bump `"version"` in `package.json` if needed, then tag and push:
 
 ```bash
-git tag v1.0.1
-git push origin v1.0.1
+git tag v1.0.2
+git push origin v1.0.2
 ```
 
 3. GitHub Actions builds macOS / Windows / Linux packages and uploads them to the release for that tag.
 
-You can also run **Actions → Release → Run workflow** manually.
+You can also run **Actions → Release → Run workflow** manually. Protect `main` and `develop` so only you can merge (settings steps in [CONTRIBUTING.md](CONTRIBUTING.md)).
 
 ### First run
 
