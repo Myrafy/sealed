@@ -8,13 +8,36 @@ A local encrypted secrets manager for developers. Store secrets once, inject the
 - **Per-app secrets** — Group secrets by project. Each app has its own isolated vault.
 - **Auto-inject** — Link project folders and Sealed writes a git-ignored `.env` or `launchSettings.json` automatically.
 - **Two storage backends** — Local encrypted file (default) or MongoDB (ciphertext only).
-- **Cross-platform** — Windows (NSIS installer) and macOS (DMG).
+- **Cross-platform** — Windows (NSIS), macOS (DMG), and Linux (AppImage / deb).
 
 ## Getting Started
 
 ### Install
 
-Download the installer for your platform from the [releases page](#) and run it.
+Download the latest installer from **[GitHub Releases](https://github.com/Myrafy/sealed/releases/latest)**:
+
+| Platform | File |
+|----------|------|
+| macOS (Apple Silicon) | `Sealed-*-mac-arm64.dmg` |
+| macOS (Intel) | `Sealed-*-mac-x64.dmg` |
+| Windows | `Sealed-*-win-x64.exe` |
+| Linux | `Sealed-*-linux-x64.AppImage` or `.deb` |
+
+**macOS note:** builds are currently unsigned. After download, right-click the app → **Open** the first time (Gatekeeper).
+
+### Publish a release (maintainers)
+
+1. Bump `"version"` in `package.json` (e.g. `1.0.1`).
+2. Commit, then tag and push:
+
+```bash
+git tag v1.0.1
+git push origin v1.0.1
+```
+
+3. GitHub Actions builds macOS / Windows / Linux packages and uploads them to the release for that tag.
+
+You can also run **Actions → Release → Run workflow** manually.
 
 ### First run
 
