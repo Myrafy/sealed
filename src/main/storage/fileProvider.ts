@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs'
+import { readFileSync, writeFileSync, existsSync, mkdirSync, unlinkSync } from 'fs'
 import { join, dirname } from 'path'
 import type { VaultMeta, App, Secret, ProjectLink } from '@shared/types'
 import type { StorageProvider } from './provider'
@@ -124,6 +124,11 @@ export class FileStorageProvider implements StorageProvider {
       if (link) return link
     }
     return null
+  }
+
+  async wipeAll(): Promise<void> {
+    this.data = null
+    if (existsSync(this.filePath)) unlinkSync(this.filePath)
   }
 
   async close(): Promise<void> {

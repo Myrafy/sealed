@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useAppStore } from '../store/appStore'
+import { AppVersion } from '../components/AppVersion'
 import type { Settings, StorageMode } from '@shared/types'
 
 interface Props {
@@ -170,6 +171,16 @@ DotNetEnv.Env.Load();`}
               Choose the "launchSettings" format when linking a .NET project. Secrets are merged into Properties/launchSettings.json and injected automatically by Visual Studio and dotnet run.
             </div>
           </div>
+        </div>
+      </div>
+      <div className="settings-section">
+        <div className="settings-section-title">About</div>
+        <div className="settings-row">
+          <div>
+            <div className="settings-row-label">Sealed</div>
+            <div className="settings-row-desc">Local encrypted secrets manager</div>
+          </div>
+          <AppVersion className="app-version app-version-emphasis" />
         </div>
       </div>
     </div>

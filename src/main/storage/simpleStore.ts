@@ -40,4 +40,15 @@ export class SimpleStore<T extends Record<string, unknown> = Record<string, unkn
     this.data[key] = value
     this.flush()
   }
+
+  delete<K extends keyof T>(key: K): void {
+    delete this.data[key]
+    this.flush()
+  }
+
+  /** Replace store contents with defaults (or empty). */
+  reset(next: Partial<T> = {}): void {
+    this.data = { ...next }
+    this.flush()
+  }
 }

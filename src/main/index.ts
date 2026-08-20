@@ -1,20 +1,37 @@
 import { app, BrowserWindow, shell, ipcMain, nativeImage } from 'electron'
+import { existsSync } from 'fs'
 import { join } from 'path'
 import { registerIpcHandlers } from './ipc'
+import { WINDOW_LAYOUTS } from './windowLayout'
 
 function getAppIcon(): Electron.NativeImage {
-  return nativeImage.createFromPath(join(app.getAppPath(), 'resources/icon.png'))
+  const candidates = [
+    join(__dirname, '../../resources/icon.png'),
+    join(process.cwd(), 'resources/icon.png'),
+    join(app.getAppPath(), 'resources/icon.png')
+  ]
+  for (const path of candidates) {
+    if (existsSync(path)) {
+      const img = nativeImage.createFromPath(path)
+      if (!img.isEmpty()) return img
+    }
+  }
+  return nativeImage.createEmpty()
 }
 
 function createWindow(): BrowserWindow {
+  const icon = getAppIcon()
+  const auth = WINDOW_LAYOUTS.auth
   const mainWindow = new BrowserWindow({
-    width: 1100,
-    height: 720,
-    minWidth: 800,
-    minHeight: 560,
+    width: auth.width,
+    height: auth.height,
+    minWidth: auth.minWidth,
+    minHeight: auth.minHeight,
     show: false,
+    title: 'Sealed',
+    center: true,
     autoHideMenuBar: true,
-    icon: getAppIcon(),
+    icon,
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -43,9 +60,18 @@ function createWindow(): BrowserWindow {
   return mainWindow
 }
 
+// Name shown in the macOS menu bar / About (Dock tooltip may still say Electron in pure dev)
+app.setName('Sealed')
+
 app.whenReady().then(() => {
   if (process.platform === 'win32') {
     app.setAppUserModelId('com.sealed.app')
+  }
+
+  // Dev builds run as Electron.app — set Dock icon so Sealed branding shows
+  if (process.platform === 'darwin') {
+    const icon = getAppIcon()
+    if (!icon.isEmpty()) app.dock.setIcon(icon)
   }
 
   registerIpcHandlers(ipcMain)

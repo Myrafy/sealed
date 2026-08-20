@@ -23,5 +23,8 @@ export interface StorageProvider {
   deleteProjectLink(linkId: string): Promise<void>
   getProjectLink(linkId: string): Promise<ProjectLink | null>
 
+  /** Permanently delete vault meta, apps, secrets, and links. */
+  wipeAll(): Promise<void>
+
   close(): Promise<void>
 }

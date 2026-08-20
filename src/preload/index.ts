@@ -15,6 +15,7 @@ const api: WindowApi = {
   'vault:lock': () => invoke('vault:lock'),
   'vault:isUnlocked': () => invoke('vault:isUnlocked'),
   'vault:testMongo': (uri) => invoke('vault:testMongo', uri),
+  'vault:reset': () => invoke('vault:reset'),
 
   'apps:list': () => invoke('apps:list'),
   'apps:create': (name) => invoke('apps:create', name),
@@ -35,6 +36,10 @@ const api: WindowApi = {
   'settings:get': () => invoke('settings:get'),
   'settings:set': (patch) => invoke('settings:set', patch),
   'settings:migrateStorage': (targetMode, mongoUri) => invoke('settings:migrateStorage', targetMode, mongoUri),
+
+  'app:getInfo': () => invoke('app:getInfo'),
+
+  'window:setLayout': (layout) => invoke('window:setLayout', layout),
 
   'dialog:openFolder': () => invoke('dialog:openFolder')
 }

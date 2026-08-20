@@ -116,6 +116,15 @@ export class MongoStorageProvider implements StorageProvider {
     return link as ProjectLink
   }
 
+  async wipeAll(): Promise<void> {
+    await Promise.all([
+      this.col('vault').deleteMany({}),
+      this.col('apps').deleteMany({}),
+      this.col('secrets').deleteMany({}),
+      this.col('links').deleteMany({})
+    ])
+  }
+
   async close(): Promise<void> {
     await this.client.close()
   }

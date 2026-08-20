@@ -1,5 +1,6 @@
 {
   "name": "sealed",
+  "productName": "Sealed",
   "version": "1.0.0",
   "description": "Local encrypted secrets manager for developers",
   "main": "./out/main/index.js",

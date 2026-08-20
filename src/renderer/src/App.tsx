@@ -5,7 +5,8 @@ import { UnlockPage } from './pages/Unlock'
 import { AppDetail } from './pages/AppDetail'
 import { SettingsPage } from './pages/Settings'
 import { ToastContainer } from './components/Toast'
-import { AppIcon } from './components/AppIcon'
+import { AppTitlebar } from './components/AppTitlebar'
+import { AppVersion } from './components/AppVersion'
 import { Modal } from './components/Modal'
 import type { App } from '@shared/types'
 
@@ -13,7 +14,7 @@ export default function App(): React.ReactElement {
   const {
     isSetup, page, selectedAppId,
     apps, settings,
-    setIsSetup, setIsUnlocked, setPage, setSelectedApp, setApps, setSettings,
+    setIsSetup, setIsUnlocked, setPage, setSelectedApp, setApps, setSettings, setAppVersion,
     addToast
   } = useAppStore()
 
@@ -34,19 +35,28 @@ export default function App(): React.ReactElement {
   // Boot sequence: check setup + lock state
   useEffect(() => {
     async function boot(): Promise<void> {
-      const setup = await window.api['vault:isSetup']()
-      setIsSetup(setup)
-      if (!setup) {
+      try {
+        const info = await window.api['app:getInfo']()
+        setAppVersion(info.version)
+
+        const setup = await window.api['vault:isSetup']()
+        setIsSetup(setup)
+        if (!setup) {
+          setPage('setup')
+          return
+        }
+        const unlocked = await window.api['vault:isUnlocked']()
+        setIsUnlocked(unlocked)
+        if (unlocked) {
+          setPage('main')
+          await loadData()
+        } else {
+          setPage('unlock')
+        }
+      } catch {
+        setIsSetup(false)
         setPage('setup')
-        return
-      }
-      const unlocked = await window.api['vault:isUnlocked']()
-      setIsUnlocked(unlocked)
-      if (unlocked) {
-        setPage('main')
-        await loadData()
-      } else {
-        setPage('unlock')
+        addToast('Could not load vault settings. Starting setup.', 'error')
       }
     }
     boot()
@@ -55,6 +65,12 @@ export default function App(): React.ReactElement {
   // Reload data when page becomes main
   useEffect(() => {
     if (page === 'main') loadData()
+  }, [page])
+
+  // Compact window for auth screens; full size for vault UI (user can still resize)
+  useEffect(() => {
+    const layout = page === 'main' || page === 'settings' ? 'main' : 'auth'
+    void window.api['window:setLayout'](layout)
   }, [page])
 
   async function handleLock(): Promise<void> {
@@ -104,19 +120,19 @@ export default function App(): React.ReactElement {
 
   return (
     <div className="app-layout">
-      {/* Title bar */}
-      <div className="titlebar">
-        <AppIcon size={20} />
-        <span className="titlebar-title">Sealed</span>
-        <div className="titlebar-spacer" />
-        <button
-          className="titlebar-btn"
-          onClick={() => setPage(page === 'settings' ? 'main' : 'settings')}
-        >
-          {page === 'settings' ? '← Back' : '⚙ Settings'}
-        </button>
-        <button className="titlebar-btn" onClick={handleLock}>🔒 Lock</button>
-      </div>
+      <AppTitlebar
+        actions={
+          <>
+            <button
+              className="titlebar-btn"
+              onClick={() => setPage(page === 'settings' ? 'main' : 'settings')}
+            >
+              {page === 'settings' ? '← Back' : '⚙ Settings'}
+            </button>
+            <button className="titlebar-btn" onClick={handleLock}>🔒 Lock</button>
+          </>
+        }
+      />
 
       {/* Body */}
       {page === 'settings' && settings ? (
@@ -168,8 +184,9 @@ export default function App(): React.ReactElement {
               ))}
             </div>
             <div className="sidebar-footer">
-              <div style={{ fontSize: 11, color: 'var(--text-dim)', textAlign: 'center' }}>
-                {settings?.storageMode === 'mongodb' ? '☁ MongoDB' : '💾 Local file'}
+              <div className="sidebar-footer-meta">
+                <span>{settings?.storageMode === 'mongodb' ? '☁ MongoDB' : '💾 Local file'}</span>
+                <AppVersion />
               </div>
             </div>
           </div>

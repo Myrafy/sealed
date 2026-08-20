@@ -103,6 +103,16 @@ describe('FileStorageProvider', () => {
     expect(apps2[0].name).toBe('Persist Test')
   })
 
+  it('wipeAll removes vault file and all data', async () => {
+    await provider.saveVaultMeta(makeVaultMeta())
+    await provider.saveApp({ id: 'app1', name: 'Gone', createdAt: new Date().toISOString(), linkedProjects: [] })
+    await provider.wipeAll()
+    expect(await provider.getVaultMeta()).toBeNull()
+    expect(await provider.listApps()).toHaveLength(0)
+    const again = new FileStorageProvider(dir)
+    expect(await again.getVaultMeta()).toBeNull()
+  })
+
   it('cleanup', () => {
     rmSync(dir, { recursive: true, force: true })
   })

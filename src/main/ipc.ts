@@ -1,4 +1,4 @@
-import { IpcMain, app, dialog, safeStorage } from 'electron'
+import { IpcMain, BrowserWindow, app, dialog, safeStorage } from 'electron'
 import { randomUUID } from 'crypto'
 import { existsSync } from 'fs'
 
@@ -10,6 +10,7 @@ import { SimpleStore } from './storage/simpleStore'
 import { ensureGitignored } from './sync/gitignore'
 import { writeEnvFile, parseEnvText } from './sync/envWriter'
 import { writeLaunchSettings } from './sync/launchSettingsWriter'
+import { applyWindowLayout, type WindowLayout } from './windowLayout'
 
 import type { StorageProvider } from './storage/provider'
 import type { VaultMeta, App, Secret, ProjectLink, Settings, SyncFormat } from '@shared/types'
@@ -47,15 +48,35 @@ function resetLockTimer(): void {
   }
 }
 
+/** Decrypt stored Mongo URI, or null if missing/corrupt (clears bad ciphertext). */
+function readMongoUri(): string | null {
+  const store = getSettingsStore()
+  const encUri = store.get('mongoUriEncrypted')
+  if (!encUri || !safeStorage.isEncryptionAvailable()) return null
+  try {
+    return safeStorage.decryptString(Buffer.from(encUri, 'base64'))
+  } catch {
+    // Keychain / Electron identity changed — ciphertext is no longer readable
+    store.delete('mongoUriEncrypted')
+    if (store.get('storageMode', 'file') === 'mongodb') {
+      store.set('storageMode', 'file')
+    }
+    return null
+  }
+}
+
 async function getProvider(): Promise<StorageProvider> {
   if (provider) return provider
   const mode = getSettingsStore().get('storageMode', 'file')
   if (mode === 'mongodb') {
-    const encUri = getSettingsStore().get('mongoUriEncrypted')
-    if (encUri && safeStorage.isEncryptionAvailable()) {
-      const uri = safeStorage.decryptString(Buffer.from(encUri, 'base64'))
-      provider = await MongoStorageProvider.connect(uri)
-      return provider
+    const uri = readMongoUri()
+    if (uri) {
+      try {
+        provider = await MongoStorageProvider.connect(uri)
+        return provider
+      } catch {
+        getSettingsStore().set('storageMode', 'file')
+      }
     }
   }
   provider = new FileStorageProvider(app.getPath('userData'))
@@ -67,9 +88,13 @@ async function getProvider(): Promise<StorageProvider> {
 export function registerIpcHandlers(ipcMain: IpcMain): void {
   // ── vault:isSetup ──────────────────────────────────────────────────────────
   ipcMain.handle('vault:isSetup', async () => {
-    const p = await getProvider()
-    const meta = await p.getVaultMeta()
-    return meta !== null
+    try {
+      const p = await getProvider()
+      const meta = await p.getVaultMeta()
+      return meta !== null
+    } catch {
+      return false
+    }
   })
 
   // ── vault:setup ───────────────────────────────────────────────────────────
@@ -145,6 +170,49 @@ export function registerIpcHandlers(ipcMain: IpcMain): void {
     try {
       const testProvider = await MongoStorageProvider.connect(uri)
       await testProvider.close()
+      return { ok: true as const }
+    } catch (err) {
+      return { ok: false as const, error: String(err) }
+    }
+  })
+
+  // ── vault:reset ───────────────────────────────────────────────────────────
+  // Forgot password: permanently wipe current vault (local + MongoDB if set)
+  // and clear settings so the user can run first-time setup again.
+  ipcMain.handle('vault:reset', async () => {
+    try {
+      sessionKey = null
+      if (lockTimer) { clearTimeout(lockTimer); lockTimer = null }
+
+      if (provider) {
+        try { await provider.close() } catch { /* ignore */ }
+        provider = null
+      }
+
+      const store = getSettingsStore()
+      const mongoUri = readMongoUri()
+
+      // Always wipe local vault.json
+      const local = new FileStorageProvider(app.getPath('userData'))
+      await local.wipeAll()
+
+      // Wipe MongoDB vault if we can still read the stored URI
+      if (mongoUri) {
+        try {
+          const mongo = await MongoStorageProvider.connect(mongoUri)
+          await mongo.wipeAll()
+          await mongo.close()
+        } catch {
+          /* Mongo unreachable — local wipe still succeeded */
+        }
+      }
+
+      store.reset({
+        storageMode: 'file',
+        autoLockMinutes: 15,
+        theme: 'system'
+      })
+
       return { ok: true as const }
     } catch (err) {
       return { ok: false as const, error: String(err) }
@@ -373,6 +441,19 @@ export function registerIpcHandlers(ipcMain: IpcMain): void {
     } catch (err) {
       return { ok: false as const, error: String(err) }
     }
+  })
+
+  // ── app:getInfo ───────────────────────────────────────────────────────────
+  ipcMain.handle('app:getInfo', () => ({
+    name: app.getName() || 'Sealed',
+    version: app.getVersion()
+  }))
+
+  // ── window:setLayout ──────────────────────────────────────────────────────
+  ipcMain.handle('window:setLayout', (e, layout: WindowLayout) => {
+    const win = BrowserWindow.fromWebContents(e.sender)
+    if (!win) return
+    applyWindowLayout(win, layout === 'main' ? 'main' : 'auth')
   })
 
   // ── dialog:openFolder ─────────────────────────────────────────────────────

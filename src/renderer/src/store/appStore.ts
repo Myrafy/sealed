@@ -16,6 +16,7 @@ interface AppState {
   apps: App[]
   secrets: SecretMeta[]
   settings: Settings | null
+  appVersion: string | null
 
   // Toast messages
   toasts: Toast[]
@@ -35,6 +36,7 @@ interface AppActions {
   setApps: (apps: App[]) => void
   setSecrets: (secrets: SecretMeta[]) => void
   setSettings: (s: Settings) => void
+  setAppVersion: (v: string) => void
   addToast: (message: string, type: Toast['type']) => void
   removeToast: (id: string) => void
 }
@@ -47,6 +49,7 @@ export const useAppStore = create<AppState & AppActions>((set) => ({
   apps: [],
   secrets: [],
   settings: null,
+  appVersion: null,
   toasts: [],
 
   setIsSetup: (v) => set({ isSetup: v }),
@@ -56,6 +59,7 @@ export const useAppStore = create<AppState & AppActions>((set) => ({
   setApps: (apps) => set({ apps }),
   setSecrets: (secrets) => set({ secrets }),
   setSettings: (settings) => set({ settings }),
+  setAppVersion: (appVersion) => set({ appVersion }),
   addToast: (message, type) =>
     set((state) => ({
       toasts: [

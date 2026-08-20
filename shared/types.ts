@@ -58,6 +58,8 @@ export interface IpcMap {
   'vault:lock': { args: []; return: void }
   'vault:isUnlocked': { args: []; return: boolean }
   'vault:testMongo': { args: [uri: string]; return: { ok: true } | { ok: false; error: string } }
+  /** Wipe vault data (local + MongoDB if configured) and clear settings so setup can run again. */
+  'vault:reset': { args: []; return: { ok: true } | { ok: false; error: string } }
 
   // Apps
   'apps:list': { args: []; return: App[] }
@@ -82,6 +84,12 @@ export interface IpcMap {
   'settings:get': { args: []; return: Settings }
   'settings:set': { args: [patch: Partial<Settings>]; return: Settings }
   'settings:migrateStorage': { args: [targetMode: StorageMode, mongoUri?: string]; return: { ok: true } | { ok: false; error: string } }
+
+  // App metadata
+  'app:getInfo': { args: []; return: { name: string; version: string } }
+
+  // Window chrome
+  'window:setLayout': { args: [layout: 'auth' | 'main']; return: void }
 
   // Native helpers
   'dialog:openFolder': { args: []; return: string | null }
