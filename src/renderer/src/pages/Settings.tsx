@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useAppStore } from '../store/appStore'
 import { AppVersion } from '../components/AppVersion'
+import { MyrafyMark } from '../components/MyrafyMark'
 import type { Settings, StorageMode } from '@shared/types'
 
 interface Props {
@@ -181,6 +182,25 @@ DotNetEnv.Env.Load();`}
             <div className="settings-row-desc">Local encrypted secrets manager</div>
           </div>
           <AppVersion className="app-version app-version-emphasis" />
+        </div>
+        <div className="settings-row">
+          <div>
+            <div className="settings-row-label">Publisher</div>
+            <div className="settings-row-desc">Built and maintained by Myrafy</div>
+          </div>
+          <a
+            className="myrafy-link"
+            href="https://myrafy.com"
+            onClick={(e) => {
+              e.preventDefault()
+              void window.api['app:openExternal']('https://myrafy.com')
+            }}
+          >
+            myrafy.com
+          </a>
+        </div>
+        <div className="about-myrafy-banner">
+          <MyrafyMark />
         </div>
       </div>
     </div>

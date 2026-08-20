@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="sealedAppBg" x1="8" y1="4" x2="56" y2="60" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3b82f6"/>
+      <stop offset="1" stop-color="#8b5cf6"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14.5" fill="url(#sealedAppBg)"/>
+  <path
+    fill="#ffffff"
+    d="M32 12c7.4 4.6 13.2 7 17.8 7.4v14.2c0 10.8-6.9 18.9-17.8 22.6C21.1 52.5 14.2 44.4 14.2 33.6V19.4C18.8 19 24.6 16.6 32 12Z"
+  />
+  <rect x="26.5" y="30" width="11" height="9.5" rx="2.2" fill="#3b82f6"/>
+  <path
+    fill="none"
+    stroke="#3b82f6"
+    stroke-width="2.6"
+    stroke-linecap="round"
+    d="M29.2 30v-3.2a2.8 2.8 0 0 1 5.6 0V30"
+  />
+</svg>

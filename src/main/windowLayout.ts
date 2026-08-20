@@ -2,7 +2,7 @@ import { BrowserWindow, screen } from 'electron'
 
 /** Compact size for unlock / setup / reset. Larger for the main vault UI. */
 export const WINDOW_LAYOUTS = {
-  auth: { width: 480, height: 700, minWidth: 440, minHeight: 600 },
+  auth: { width: 460, height: 680, minWidth: 420, minHeight: 580 },
   main: { width: 1100, height: 720, minWidth: 800, minHeight: 560 }
 } as const
 

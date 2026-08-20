@@ -38,6 +38,7 @@ const api: WindowApi = {
   'settings:migrateStorage': (targetMode, mongoUri) => invoke('settings:migrateStorage', targetMode, mongoUri),
 
   'app:getInfo': () => invoke('app:getInfo'),
+  'app:openExternal': (url) => invoke('app:openExternal', url),
 
   'window:setLayout': (layout) => invoke('window:setLayout', layout),
 

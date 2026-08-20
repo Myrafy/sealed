@@ -74,9 +74,9 @@ input, textarea {
   background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 8px 12px;
+  padding: 9px 12px;
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 input:focus, textarea:focus {
   border-color: var(--primary-light);
@@ -116,9 +116,9 @@ html.platform-darwin .titlebar {
 .titlebar-title {
   font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   color: var(--text);
-  opacity: 0.8;
+  opacity: 0.9;
   -webkit-app-region: no-drag;
 }
 .titlebar-spacer { flex: 1; }
@@ -232,10 +232,62 @@ html.platform-darwin .titlebar {
   color: var(--text-muted);
 }
 
-.auth-version-row {
+.myrafy-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.02em;
+}
+
+.myrafy-mark-label {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.myrafy-mark-link {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  font-weight: 600;
+  color: var(--primary-light);
+  cursor: pointer;
+  -webkit-app-region: no-drag;
+}
+.myrafy-mark-link:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.myrafy-mark-sep {
+  opacity: 0.5;
+}
+
+.myrafy-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary-light);
+  text-decoration: none;
+  -webkit-app-region: no-drag;
+}
+.myrafy-link:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.about-myrafy-banner {
+  margin-top: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--primary-muted);
   display: flex;
   justify-content: center;
-  padding-top: 4px;
 }
 
 /* ─── Content ──────────────────────────────────────────────────────────────── */
@@ -358,9 +410,10 @@ html.platform-darwin .titlebar {
 
 .form { display: flex; flex-direction: column; gap: 16px; }
 .form-group { display: flex; flex-direction: column; gap: 6px; }
-.form-label { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+.form-label { font-size: 12px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.02em; }
 .form-hint { font-size: 11px; color: var(--text-dim); }
 .form-error { font-size: 11px; color: var(--danger); }
+.form-ok { font-size: 12px; font-weight: 500; color: var(--success); }
 
 .input-row {
   display: flex;
@@ -368,17 +421,80 @@ html.platform-darwin .titlebar {
 }
 .input-row input { flex: 1; }
 
+.password-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.password-field-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface2);
+  overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.password-field-row:focus-within {
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px var(--primary-muted);
+}
+
+.password-field-input {
+  flex: 1;
+  min-width: 0;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.password-toggle {
+  flex-shrink: 0;
+  padding: 0 12px;
+  border: none;
+  border-left: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+.password-toggle:hover {
+  color: var(--text);
+  background: var(--surface3);
+}
+
+.password-strength-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .password-strength {
+  flex: 1;
   height: 4px;
   border-radius: 2px;
   background: var(--surface3);
   overflow: hidden;
-  margin-top: 4px;
 }
+
 .password-strength-bar {
   height: 100%;
   border-radius: 2px;
   transition: width 0.3s, background 0.3s;
+}
+
+.password-strength-label {
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 44px;
 }
 
 /* ─── Auth pages (full-window — no nested card) ────────────────────────────── */
@@ -402,39 +518,40 @@ html.platform-darwin .titlebar {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px 40px 40px;
+  padding: 24px 28px 12px;
   overflow-y: auto;
   -webkit-app-region: no-drag;
 }
 
 .auth-panel {
-  width: 420px;
+  width: 384px;
   max-width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  align-items: stretch;
+  gap: 22px;
 }
 
-.auth-logo {
+.auth-brand {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  text-align: center;
   gap: 8px;
 }
 
-.auth-logo-centered {
-  align-items: center;
-  text-align: center;
-}
-
 .auth-logo-icon {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  flex-shrink: 0;
+  margin-bottom: 2px;
+  /* Plate already has squircle + brand fill — keep shadow subtle like Dock icons */
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.35);
 }
 
 .auth-logo-name {
   font-size: 22px;
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
   color: var(--text);
   background: var(--gradient-brand);
   -webkit-background-clip: text;
@@ -445,40 +562,27 @@ html.platform-darwin .titlebar {
 .auth-logo-tagline {
   font-size: 13px;
   color: var(--text-muted);
-  line-height: 1.45;
+  line-height: 1.4;
+  max-width: 28ch;
 }
 
-.auth-logo-centered .auth-logo-tagline {
-  text-align: center;
+.auth-form {
+  gap: 16px;
 }
 
-.auth-footer-link {
+.auth-step-header {
   display: flex;
-  justify-content: flex-start;
-  padding-top: 4px;
-  border-top: 1px solid var(--border);
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  margin-bottom: 2px;
 }
-
-.auth-logo-centered + .form + .auth-footer-link,
-.auth-panel > .auth-footer-link {
-  justify-content: center;
-}
-
-.auth-text-link {
-  background: none;
-  border: none;
-  padding: 0;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: color 0.15s;
-}
-.auth-text-link:hover { color: var(--primary-light); }
 
 .auth-step-title {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 700;
+  letter-spacing: -0.02em;
   color: var(--text);
 }
 
@@ -486,12 +590,123 @@ html.platform-darwin .titlebar {
   font-size: 13px;
   line-height: 1.45;
   color: var(--text-muted);
+  max-width: 34ch;
 }
 
 .auth-actions {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
+  padding-top: 2px;
+}
+
+.auth-actions-spread {
+  justify-content: space-between;
+}
+
+.auth-footer-link {
+  display: flex;
+  justify-content: center;
+  padding-top: 2px;
+}
+
+.auth-text-link {
+  background: none;
+  border: none;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+.auth-text-link:hover {
+  color: var(--primary-light);
+  background: var(--primary-muted);
+}
+
+.auth-shell-footer {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  padding: 10px 16px 14px;
+  background: transparent;
+}
+
+.auth-version-row {
+  display: flex;
+  justify-content: center;
+  padding-top: 4px;
+}
+
+.btn-block {
+  width: 100%;
+  justify-content: center;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  font-weight: 600;
+}
+
+/* Labeled setup wizard */
+.wizard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+}
+
+.wizard-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-dim);
+}
+
+.wizard-item.active {
+  color: var(--text);
+}
+
+.wizard-item.done {
+  color: var(--primary-light);
+}
+
+.wizard-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--surface3);
+  color: inherit;
+}
+
+.wizard-item.active .wizard-num {
+  background: var(--gradient-brand);
+  color: white;
+}
+
+.wizard-item.done .wizard-num {
+  background: var(--primary-muted);
+  color: var(--primary-light);
+}
+
+.wizard-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.wizard-connector {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
 }
 
 /* ─── Reset vault panel ────────────────────────────────────────────────────── */
@@ -499,6 +714,8 @@ html.platform-darwin .titlebar {
 .reset-header {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
   gap: 10px;
 }
 
@@ -521,6 +738,7 @@ html.platform-darwin .titlebar {
   line-height: 1.5;
   color: var(--text-muted);
   text-align: center;
+  max-width: 36ch;
 }
 
 .callout {
@@ -647,24 +865,6 @@ html.platform-darwin .titlebar {
   gap: 8px;
   padding-top: 4px;
 }
-
-/* ─── Wizard steps ─────────────────────────────────────────────────────────── */
-
-.wizard-steps {
-  display: flex;
-  gap: 0;
-  margin-bottom: 8px;
-}
-.wizard-step {
-  flex: 1;
-  height: 3px;
-  background: var(--surface3);
-  border-radius: 2px;
-  margin: 0 2px;
-  transition: background 0.3s;
-}
-.wizard-step.done { background: var(--primary); }
-.wizard-step.active { background: var(--primary); opacity: 0.6; }
 
 /* ─── Empty state ──────────────────────────────────────────────────────────── */
 

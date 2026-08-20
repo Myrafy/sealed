@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { useAppStore } from '../store/appStore'
 import { PasswordInput } from '../components/PasswordInput'
-import { AppIcon } from '../components/AppIcon'
 import { AppTitlebar } from '../components/AppTitlebar'
-import { AppVersion } from '../components/AppVersion'
+import { AuthBrand } from '../components/AuthBrand'
+import { MyrafyMark } from '../components/MyrafyMark'
 
 export function UnlockPage(): React.ReactElement {
   const {
@@ -69,20 +69,14 @@ export function UnlockPage(): React.ReactElement {
         <AppTitlebar />
         <div className="auth-body">
           <div className="auth-panel">
-            <div className="auth-logo auth-logo-centered">
-              <AppIcon size={52} className="auth-logo-icon" />
-              <div className="auth-logo-name">Sealed</div>
-              <div className="auth-logo-tagline">
-                Reset vault &amp; set up a new account
-              </div>
-            </div>
+            <AuthBrand subtitle="Reset vault & set up a new account" />
 
             <div className="reset-header">
               <div className="reset-header-top">
                 <span className="badge badge-error">Irreversible</span>
               </div>
               <div className="reset-subtitle">
-                Master passwords cannot be recovered. Resetting permanently removes this vault
+                Master passwords cannot be recovered. This permanently removes the current vault
                 so you can create a new one on this device.
               </div>
             </div>
@@ -128,7 +122,7 @@ export function UnlockPage(): React.ReactElement {
               </div>
             </div>
 
-            <div className="form">
+            <div className="form auth-form">
               <div className="form-group">
                 <label className="form-label">Type RESET to confirm</label>
                 <input
@@ -146,7 +140,7 @@ export function UnlockPage(): React.ReactElement {
                 <span className="form-hint">Confirmation is case-insensitive.</span>
               </div>
               {resetError && <span className="form-error">{resetError}</span>}
-              <div className="reset-actions">
+              <div className="auth-actions auth-actions-spread">
                 <button
                   type="button"
                   className="btn btn-ghost"
@@ -165,11 +159,10 @@ export function UnlockPage(): React.ReactElement {
                 </button>
               </div>
             </div>
-
-            <div className="auth-version-row">
-              <AppVersion />
-            </div>
           </div>
+        </div>
+        <div className="auth-shell-footer">
+          <MyrafyMark />
         </div>
       </div>
     )
@@ -180,29 +173,34 @@ export function UnlockPage(): React.ReactElement {
       <AppTitlebar />
       <div className="auth-body">
         <div className="auth-panel">
-          <div className="auth-logo auth-logo-centered">
-            <AppIcon size={52} className="auth-logo-icon" />
-            <div className="auth-logo-name">Sealed</div>
-            <div className="auth-logo-tagline">Enter your master password to unlock</div>
-          </div>
+          <AuthBrand subtitle="Unlock your encrypted vault" />
 
-          <form className="form" onSubmit={handleUnlock}>
+          <form className="form auth-form" onSubmit={handleUnlock}>
+            <div className="auth-step-header">
+              <div className="auth-step-title">Welcome back</div>
+              <div className="auth-step-desc">
+                Enter your master password to decrypt secrets on this device.
+              </div>
+            </div>
+
             <div className="form-group">
-              <label className="form-label">Master Password</label>
+              <label className="form-label">Master password</label>
               <PasswordInput
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your master password"
+                placeholder="Enter master password"
                 autoFocus
+                autoComplete="current-password"
               />
               {error && <span className="form-error">{error}</span>}
             </div>
+
             <button
               type="submit"
-              className="btn btn-primary"
+              className="btn btn-primary btn-block"
               disabled={!password || loading}
             >
-              {loading ? 'Unlocking…' : 'Unlock Vault'}
+              {loading ? 'Unlocking…' : 'Unlock vault'}
             </button>
           </form>
 
@@ -211,11 +209,10 @@ export function UnlockPage(): React.ReactElement {
               Forgot password? Reset vault
             </button>
           </div>
-
-          <div className="auth-version-row">
-            <AppVersion />
-          </div>
         </div>
+      </div>
+      <div className="auth-shell-footer">
+        <MyrafyMark />
       </div>
     </div>
   )

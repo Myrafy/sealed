@@ -87,6 +87,7 @@ export interface IpcMap {
 
   // App metadata
   'app:getInfo': { args: []; return: { name: string; version: string } }
+  'app:openExternal': { args: [url: string]; return: void }
 
   // Window chrome
   'window:setLayout': { args: [layout: 'auth' | 'main']; return: void }

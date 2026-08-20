@@ -1,4 +1,4 @@
-import { IpcMain, BrowserWindow, app, dialog, safeStorage } from 'electron'
+import { IpcMain, BrowserWindow, app, dialog, safeStorage, shell } from 'electron'
 import { randomUUID } from 'crypto'
 import { existsSync } from 'fs'
 
@@ -448,6 +448,13 @@ export function registerIpcHandlers(ipcMain: IpcMain): void {
     name: app.getName() || 'Sealed',
     version: app.getVersion()
   }))
+
+  // ── app:openExternal ──────────────────────────────────────────────────────
+  ipcMain.handle('app:openExternal', async (_e, url: string) => {
+    if (typeof url === 'string' && /^https?:\/\//i.test(url)) {
+      await shell.openExternal(url)
+    }
+  })
 
   // ── window:setLayout ──────────────────────────────────────────────────────
   ipcMain.handle('window:setLayout', (e, layout: WindowLayout) => {

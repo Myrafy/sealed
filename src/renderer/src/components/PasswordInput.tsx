@@ -24,24 +24,25 @@ export function PasswordInput({ showStrength, ...props }: Props): React.ReactEle
   const strength = showStrength ? getStrength(value) : null
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
-      <div style={{ display: 'flex', gap: 6 }}>
+    <div className="password-field">
+      <div className="password-field-row">
         <input
           {...props}
           type={visible ? 'text' : 'password'}
-          style={{ flex: 1 }}
+          className="password-field-input"
         />
         <button
           type="button"
-          className="btn btn-ghost btn-sm"
+          className="password-toggle"
           onClick={() => setVisible(!visible)}
           tabIndex={-1}
+          aria-label={visible ? 'Hide password' : 'Show password'}
         >
-          {visible ? '🙈' : '👁️'}
+          {visible ? 'Hide' : 'Show'}
         </button>
       </div>
       {showStrength && value && strength && (
-        <>
+        <div className="password-strength-meta">
           <div className="password-strength">
             <div
               className="password-strength-bar"
@@ -51,8 +52,10 @@ export function PasswordInput({ showStrength, ...props }: Props): React.ReactEle
               }}
             />
           </div>
-          <span style={{ fontSize: 11, color: strength.color }}>{strength.label}</span>
-        </>
+          <span className="password-strength-label" style={{ color: strength.color }}>
+            {strength.label}
+          </span>
+        </div>
       )}
     </div>
   )
