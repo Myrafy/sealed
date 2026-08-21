@@ -53,6 +53,9 @@ jobs:
         run: |
           echo "Apple signing certificate secret is configured."
 
+      # Without identity=null, electron-builder looks for a Developer ID on the
+      # GitHub-hosted Mac runner, fails immediately, and never writes a DMG.
+      # Pass -c.mac.identity=null only when CSC_LINK is not configured.
       - name: Package ${{ matrix.platform }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -67,9 +70,10 @@ jobs:
           APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
           APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
-          # Only force unsigned when no cert secret is set
-          CSC_IDENTITY_AUTO_DISCOVERY: ${{ secrets.CSC_LINK == '' && 'false' || 'true' }}
-        run: npx electron-builder --${{ matrix.platform }} --publish always
+          CSC_IDENTITY_AUTO_DISCOVERY: ${{ secrets.CSC_LINK && 'true' || 'false' }}
+        run: >
+          npx electron-builder --${{ matrix.platform }} --publish always
+          ${{ matrix.platform == 'mac' && !secrets.CSC_LINK && '-c.mac.identity=null' || '' }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

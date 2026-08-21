@@ -18,6 +18,8 @@ mac:
   gatekeeperAssess: false
   entitlements: build/entitlements.mac.plist
   entitlementsInherit: build/entitlements.mac.plist
+  # CI passes -c.mac.identity=null when CSC_LINK is unset (see release.yml).
+  # Do not hardcode identity: null here — that would skip signing even with CSC_LINK.
   # Built-in notarize disabled — scripts/notarize.cjs runs afterSign and
   # skips when Apple secrets are missing (so unsigned CI still works).
   notarize: false
